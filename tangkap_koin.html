@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Tangkap Koin</title>
+<style>
+*{box-sizing:border-box} body{margin:0;font-family:Arial,sans-serif;background:#111;color:#fff;overflow:hidden}
+#top{height:72px;display:flex;justify-content:space-around;align-items:center;background:#1d1d1d;font-weight:bold}
+#game{position:relative;width:100vw;height:calc(100vh - 72px);background:linear-gradient(160deg,#173d56,#07131d);overflow:hidden}
+#coin{position:absolute;width:64px;height:64px;border-radius:50%;background:#ffd43b;border:4px solid #fff1a8;box-shadow:0 0 20px #ffd43b;display:none;touch-action:manipulation}
+#coin:after{content:"★";position:absolute;inset:0;display:grid;place-items:center;color:#9b6500;font-size:28px}
+#start{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);padding:16px 28px;border:0;border-radius:14px;background:#ffd43b;color:#222;font-size:20px;font-weight:bold}
+#msg{position:absolute;left:50%;top:38%;transform:translate(-50%,-50%);text-align:center;font-size:22px;width:90%;line-height:1.5}
+small{opacity:.75}
+</style>
+</head>
+<body>
+<div id="top"><div>💰 <span id="score">0</span></div><div>⏱️ <span id="time">30</span>s</div><div>🏆 <span id="best">0</span></div></div>
+<div id="game">
+<div id="msg">Tangkap koin sebanyak mungkin!<br><small>Waktu 30 detik</small></div>
+<button id="start">MULAI GAME</button>
+<div id="coin"></div>
+</div>
+<script>
+const game=document.getElementById('game'),coin=document.getElementById('coin'),start=document.getElementById('start');
+const scoreEl=document.getElementById('score'),timeEl=document.getElementById('time'),bestEl=document.getElementById('best'),msg=document.getElementById('msg');
+let score=0,time=30,timer=null,playing=false,best=Number(localStorage.bestCoin||0);bestEl.textContent=best;
+function moveCoin(){
+ const maxX=Math.max(10,game.clientWidth-74), maxY=Math.max(10,game.clientHeight-74);
+ coin.style.left=(10+Math.random()*maxX-10)+'px'; coin.style.top=(10+Math.random()*maxY-10)+'px';
+}
+function endGame(){
+ playing=false; clearInterval(timer); coin.style.display='none'; start.style.display='block';
+ msg.innerHTML=`Game selesai!<br><b>Skor kamu: ${score}</b><br><small>Tekan MULAI untuk bermain lagi</small>`;
+ if(score>best){best=score;localStorage.bestCoin=best;bestEl.textContent=best;}
+}
+function begin(){
+ score=0;time=30;playing=true;scoreEl.textContent=score;timeEl.textContent=time;
+ msg.style.display='none';start.style.display='none';coin.style.display='block';moveCoin();
+ clearInterval(timer);
+ timer=setInterval(()=>{time--;timeEl.textContent=time;if(time<=0)endGame()},1000);
+}
+coin.addEventListener('pointerdown',e=>{if(!playing)return;e.preventDefault();score++;scoreEl.textContent=score;moveCoin()});
+start.addEventListener('click',begin);
+</script>
+</body>
+</html>
